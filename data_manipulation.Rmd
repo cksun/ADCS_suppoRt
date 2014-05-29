@@ -231,8 +231,8 @@ DT_join[, list(lapply(.SD, function(x) {sum(! is.na(x))}),
 ```
 
 ## Reference
--[data.table R forge] (http://datatable.r-forge.r-project.org/)
--[stackoverflow for data.table] (http://stackoverflow.com/questions/tagged/data.table)
--[data.table wiki] (http://rwiki.sciviews.org/doku.php?id=packages:cran:data.table)
+- [data.table R forge] (http://datatable.r-forge.r-project.org/)
+- [stackoverflow for data.table] (http://stackoverflow.com/questions/tagged/data.table)
+- [data.table wiki] (http://rwiki.sciviews.org/doku.php?id=packages:cran:data.table)
 
 

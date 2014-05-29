@@ -16,8 +16,6 @@ This key can be used for row indexing instead of rownames, and **duplicate key v
 fast aggregation, fast last observation carried forward (LOCF) and fast 
 add/modify/delete of columns by reference with no copy at all.
 
-
- 
 ## Basic syntax
 x[i, j, by] - Take `x`, subset rows using `i`, then calculate `j` grouped by `by`
 - i: *Integer, logical* or *character vector*, *expression of column names, list* or *data.table*
@@ -585,7 +583,6 @@ DT[!J("b", 3)]  # same result but much faster
 
 
 
-
 ```r
 DT_mmse = data.table(mmse)
 DT_cogp1 = data.table(cogp1)
@@ -770,353 +767,71 @@ DT_join[, lapply(.SD, function(x) mean(x, na.rm = TRUE)), by = "VISCODE", .SDcol
 ```
 
 ```r
+
 # mean of each COTs by VISCODE and treatment
-DT_join[, lapply(.SD, function(x) mean(x, na.rm = TRUE)), by = "VISCODE,treatment", 
-    .SDcols = COTs]
+head(DT_join[, lapply(.SD, function(x) mean(x, na.rm = TRUE)), by = "VISCODE,treatment", 
+    .SDcols = COTs])
 ```
 
 ```
-##     VISCODE treatment COT1SCOR COT2SCOR COT3SCOR
-##  1:      bl   placebo    6.909    7.897    8.047
-##  2:     m01   placebo    6.262    7.511    7.977
-##  3:     m03   placebo    7.144    7.897    8.273
-##  4:     m07   placebo    7.686    7.000    7.829
-##  5:     m09   placebo    7.028    7.650    7.979
-##  6:     m12   placebo    6.915    7.670    7.960
-##  7:     m15   placebo    7.090    7.833    8.083
-##  8:     m21   placebo    6.559    7.828    8.094
-##  9:     m25   placebo    7.000    7.586    8.067
-## 10:     m26   placebo    7.619    7.955    7.857
-## 11:     m39   placebo    7.010    7.716    8.282
-## 12:     m43   placebo    6.852    7.586    8.367
-## 13:     m45   placebo    7.494    7.809    7.882
-## 14:    m48e   placebo    7.075    7.680    8.034
-## 15:     m08 treatment    7.172    7.966    8.000
-## 16:    m48e treatment    7.113    7.647    8.277
-## 17:     m02 treatment    7.294    7.829    8.059
-## 18:     m11 treatment    7.057    7.314    8.029
-## 19:     m12 treatment    6.832    7.599    7.983
-## 20:     m13 treatment    7.364    7.758    7.485
-## 21:     m36 treatment    7.129    7.907    8.227
-## 22:     m39 treatment    7.327    7.765    8.233
-## 23:     m47 treatment    6.880    7.840    7.792
-## 24:     m34 treatment    6.773    7.591    7.957
-## 25:     m01 treatment    7.062    7.647    7.636
-## 26:     m06 treatment    7.142    7.602    7.994
-## 27:     m15 treatment    7.259    7.884    8.041
-## 28:     m19 treatment    7.464    7.500    8.300
-## 29:     m21 treatment    7.087    7.726    8.135
-## 30:     m30 treatment    7.015    7.788    8.180
-## 31:      bl treatment    7.399    7.980    7.944
-## 32:     m05 treatment    6.762    7.860    8.070
-## 33:     m10 treatment    6.425    7.500    7.711
-## 34:     m45 treatment    7.248    7.327    7.850
-## 35:     m05   placebo    6.407    8.154    8.423
-## 36:     m36   placebo    6.981    7.630    7.853
-## 37:     m42   placebo    7.081    7.541    8.300
-## 38:     m03 treatment    7.133    7.764    8.133
-## 39:     m09 treatment    7.103    7.461    8.154
-## 40:     m17 treatment    6.939    7.029    7.636
-## 41:     m18 treatment    6.971    7.458    7.842
-## 42:     m27 treatment    7.144    7.844    7.748
-## 43:     m33 treatment    6.974    7.597    8.235
-## 44:     m44 treatment    6.760    7.250    8.160
-## 45:     m06   placebo    6.900    7.566    8.182
-## 46:     m32   placebo    6.862    7.893    8.138
-## 47:     m24 treatment    6.732    7.985    7.920
-## 48:     m16   placebo    6.818    7.364    8.121
-## 49:     m30   placebo    7.043    7.783    7.935
-## 50:     m14 treatment    7.529    7.943    8.242
-## 51:     m31 treatment    6.571    7.250    8.115
-## 52:     m42 treatment    7.090    7.490    7.990
-## 53:     m22 treatment    7.242    7.235    8.471
-## 54:     m26 treatment    6.270    7.714    7.676
-## 55:     m29 treatment    7.190    7.429    7.842
-## 56:     m14   placebo    6.594    7.758    8.219
-## 57:     m04   placebo    6.943    7.639    8.167
-## 58:     m17   placebo    7.281    7.719    8.182
-## 59:     m28   placebo    7.000    7.690    7.500
-## 60:     m31   placebo    6.364    7.818    7.955
-## 61:     m33   placebo    6.980    7.867    8.495
-## 62:     m34   placebo    8.000    7.727    7.522
-## 63:     m41   placebo    7.000    8.714    7.643
-## 64:     m46   placebo    6.250    7.550    7.850
-## 65:     m23 treatment    7.143    7.576    8.114
-## 66:     m41 treatment    7.321    8.259    7.714
-## 67:     m19   placebo    6.909    8.188    7.871
-## 68:     m24   placebo    7.137    7.739    8.027
-## 69:     m18   placebo    7.123    7.859    8.055
-## 70:     m08   placebo    7.174    7.674    7.978
-## 71:     m11   placebo    7.389    6.886    7.694
-## 72:     m22   placebo    6.810    7.500    7.739
-## 73:     m27   placebo    6.957    7.897    8.158
-## 74:     m29   placebo    7.455    6.656    8.500
-## 75:     m44   placebo    8.176    6.389    8.412
-## 76:     m37   placebo    6.529    7.556    8.167
-## 77:     m25 treatment    6.862    7.214    8.100
-## 78:     m40 treatment    7.875    7.522    8.304
-## 79:     m20   placebo    6.821    8.286    8.207
-## 80:     m23   placebo    7.000    7.652    8.480
-## 81:     m35   placebo    7.125    7.462    7.815
-## 82:     m40   placebo    7.429    7.545    8.636
-## 83:     m07 treatment    7.293    7.775    8.073
-## 84:     m02   placebo    6.886    8.196    8.196
-## 85:     m04 treatment    6.730    7.950    7.900
-## 86:     m32 treatment    7.375    7.824    7.882
-## 87:     m20 treatment    6.567    7.833    7.933
-## 88:     m47   placebo    7.643    7.429    9.143
-## 89:     m16 treatment    6.971    7.886    8.057
-## 90:     m28 treatment    7.095    8.000    7.762
-## 91:     m43 treatment    8.071    8.000    7.500
-## 92:     m13   placebo    7.424    8.625    7.091
-## 93:     m38   placebo    6.143    8.143    7.714
-## 94:     m37 treatment    7.000    7.586    7.963
-## 95:     m38 treatment    7.000    7.931    7.800
-## 96:     m10   placebo    6.212    7.677    7.968
-## 97:     m35 treatment    7.174    8.435    7.545
-## 98:     m46 treatment    7.100    8.550    8.700
-##     VISCODE treatment COT1SCOR COT2SCOR COT3SCOR
+##    VISCODE treatment COT1SCOR COT2SCOR COT3SCOR
+## 1:      bl   placebo    6.909    7.897    8.047
+## 2:     m01   placebo    6.262    7.511    7.977
+## 3:     m03   placebo    7.144    7.897    8.273
+## 4:     m07   placebo    7.686    7.000    7.829
+## 5:     m09   placebo    7.028    7.650    7.979
+## 6:     m12   placebo    6.915    7.670    7.960
 ```
 
 ```r
 # total counts by VISCODE and treatment
-DT_join[, lapply(.SD, function(x) length(x)), by = "VISCODE,treatment", .SDcols = COTs]
+head(DT_join[, lapply(.SD, function(x) length(x)), by = "VISCODE,treatment", 
+    .SDcols = COTs])
 ```
 
 ```
-##     VISCODE treatment COT1SCOR COT2SCOR COT3SCOR
-##  1:      bl   placebo      280      280      280
-##  2:     m01   placebo       45       45       45
-##  3:     m03   placebo      178      178      178
-##  4:     m07   placebo       35       35       35
-##  5:     m09   placebo      145      145      145
-##  6:     m12   placebo      226      226      226
-##  7:     m15   placebo      135      135      135
-##  8:     m21   placebo      131      131      131
-##  9:     m25   placebo       30       30       30
-## 10:     m26   placebo       22       22       22
-## 11:     m39   placebo      106      106      106
-## 12:     m43   placebo       30       30       30
-## 13:     m45   placebo       90       90       90
-## 14:    m48e   placebo      153      153      153
-## 15:     m08 treatment       29       29       29
-## 16:    m48e treatment      171      171      171
-## 17:     m02 treatment       35       35       35
-## 18:     m11 treatment       35       35       35
-## 19:     m12 treatment      235      235      235
-## 20:     m13 treatment       34       34       34
-## 21:     m36 treatment      206      206      206
-## 22:     m39 treatment      105      105      105
-## 23:     m47 treatment       25       25       25
-## 24:     m34 treatment       23       23       23
-## 25:     m01 treatment       34       34       34
-## 26:     m06 treatment      173      173      173
-## 27:     m15 treatment      149      149      149
-## 28:     m19 treatment       30       30       30
-## 29:     m21 treatment      127      127      127
-## 30:     m30 treatment      136      136      136
-## 31:      bl treatment      305      305      305
-## 32:     m05 treatment       43       43       43
-## 33:     m10 treatment       40       40       40
-## 34:     m45 treatment      110      110      110
-## 35:     m05   placebo       27       27       27
-## 36:     m36   placebo      165      165      165
-## 37:     m42   placebo      101      101      101
-## 38:     m03 treatment      168      168      168
-## 39:     m09 treatment      168      168      168
-## 40:     m17 treatment       34       34       34
-## 41:     m18 treatment      143      143      143
-## 42:     m27 treatment      113      113      113
-## 43:     m33 treatment      119      119      119
-## 44:     m44 treatment       25       25       25
-## 45:     m06   placebo      163      163      163
-## 46:     m32   placebo       29       29       29
-## 47:     m24 treatment      202      202      202
-## 48:     m16   placebo       33       33       33
-## 49:     m30   placebo       94       94       94
-## 50:     m14 treatment       35       35       35
-## 51:     m31 treatment       28       28       28
-## 52:     m42 treatment      100      100      100
-## 53:     m22 treatment       35       35       35
-## 54:     m26 treatment       37       37       37
-## 55:     m29 treatment       21       21       21
-## 56:     m14   placebo       33       33       33
-## 57:     m04   placebo       36       36       36
-## 58:     m17   placebo       33       33       33
-## 59:     m28   placebo       30       30       30
-## 60:     m31   placebo       22       22       22
-## 61:     m33   placebo      101      101      101
-## 62:     m34   placebo       23       23       23
-## 63:     m41   placebo       14       14       14
-## 64:     m46   placebo       20       20       20
-## 65:     m23 treatment       36       36       36
-## 66:     m41 treatment       28       28       28
-## 67:     m19   placebo       33       33       33
-## 68:     m24   placebo      222      222      222
-## 69:     m18   placebo      130      130      130
-## 70:     m08   placebo       47       47       47
-## 71:     m11   placebo       36       36       36
-## 72:     m22   placebo       23       23       23
-## 73:     m27   placebo      140      140      140
-## 74:     m29   placebo       33       33       33
-## 75:     m44   placebo       18       18       18
-## 76:     m37   placebo       18       18       18
-## 77:     m25 treatment       30       30       30
-## 78:     m40 treatment       24       24       24
-## 79:     m20   placebo       29       29       29
-## 80:     m23   placebo       25       25       25
-## 81:     m35   placebo       27       27       27
-## 82:     m40   placebo       22       22       22
-## 83:     m07 treatment       41       41       41
-## 84:     m02   placebo       46       46       46
-## 85:     m04 treatment       40       40       40
-## 86:     m32 treatment       17       17       17
-## 87:     m20 treatment       31       31       31
-## 88:     m47   placebo       14       14       14
-## 89:     m16 treatment       35       35       35
-## 90:     m28 treatment       21       21       21
-## 91:     m43 treatment       14       14       14
-## 92:     m13   placebo       33       33       33
-## 93:     m38   placebo       21       21       21
-## 94:     m37 treatment       29       29       29
-## 95:     m38 treatment       30       30       30
-## 96:     m10   placebo       33       33       33
-## 97:     m35 treatment       23       23       23
-## 98:     m46 treatment       20       20       20
-##     VISCODE treatment COT1SCOR COT2SCOR COT3SCOR
+##    VISCODE treatment COT1SCOR COT2SCOR COT3SCOR
+## 1:      bl   placebo      280      280      280
+## 2:     m01   placebo       45       45       45
+## 3:     m03   placebo      178      178      178
+## 4:     m07   placebo       35       35       35
+## 5:     m09   placebo      145      145      145
+## 6:     m12   placebo      226      226      226
 ```
 
 ```r
 
 # non missing total counts by VISCODE and treatment
-DT_join[, lapply(.SD, function(x) {
+head(DT_join[, lapply(.SD, function(x) {
     sum(!is.na(x))
-}), by = "VISCODE,treatment", .SDcols = COTs]
+}), by = "VISCODE,treatment", .SDcols = COTs])
 ```
 
 ```
-##     VISCODE treatment COT1SCOR COT2SCOR COT3SCOR
-##  1:      bl   placebo      275      273      274
-##  2:     m01   placebo       42       45       43
-##  3:     m03   placebo      174      174      176
-##  4:     m07   placebo       35       35       35
-##  5:     m09   placebo      144      140      140
-##  6:     m12   placebo      223      218      223
-##  7:     m15   placebo      133      132      132
-##  8:     m21   placebo      127      128      127
-##  9:     m25   placebo       29       29       30
-## 10:     m26   placebo       21       22       21
-## 11:     m39   placebo      104      102      103
-## 12:     m43   placebo       27       29       30
-## 13:     m45   placebo       89       89       85
-## 14:    m48e   placebo      147      150      149
-## 15:     m08 treatment       29       29       29
-## 16:    m48e treatment      168      167      166
-## 17:     m02 treatment       34       35       34
-## 18:     m11 treatment       35       35       34
-## 19:     m12 treatment      232      232      232
-## 20:     m13 treatment       33       33       33
-## 21:     m36 treatment      194      204      203
-## 22:     m39 treatment      104      102      103
-## 23:     m47 treatment       25       25       24
-## 24:     m34 treatment       22       22       23
-## 25:     m01 treatment       32       34       33
-## 26:     m06 treatment      169      171      171
-## 27:     m15 treatment      147      147      146
-## 28:     m19 treatment       28       30       30
-## 29:     m21 treatment      126      124      126
-## 30:     m30 treatment      134      132      133
-## 31:      bl treatment      301      298      301
-## 32:     m05 treatment       42       43       43
-## 33:     m10 treatment       40       40       38
-## 34:     m45 treatment      109      110      107
-## 35:     m05   placebo       27       26       26
-## 36:     m36   placebo      161      162      163
-## 37:     m42   placebo       99       98      100
-## 38:     m03 treatment      165      165      165
-## 39:     m09 treatment      165      165      162
-## 40:     m17 treatment       33       34       33
-## 41:     m18 treatment      140      142      139
-## 42:     m27 treatment      111      109      107
-## 43:     m33 treatment      116      119      115
-## 44:     m44 treatment       25       24       25
-## 45:     m06   placebo      160      159      159
-## 46:     m32   placebo       29       28       29
-## 47:     m24 treatment      198      198      199
-## 48:     m16   placebo       33       33       33
-## 49:     m30   placebo       93       92       93
-## 50:     m14 treatment       34       35       33
-## 51:     m31 treatment       28       28       26
-## 52:     m42 treatment      100      100       97
-## 53:     m22 treatment       33       34       34
-## 54:     m26 treatment       37       35       37
-## 55:     m29 treatment       21       21       19
-## 56:     m14   placebo       32       33       32
-## 57:     m04   placebo       35       36       36
-## 58:     m17   placebo       32       32       33
-## 59:     m28   placebo       29       29       30
-## 60:     m31   placebo       22       22       22
-## 61:     m33   placebo       98       98       99
-## 62:     m34   placebo       23       22       23
-## 63:     m41   placebo       13       14       14
-## 64:     m46   placebo       20       20       20
-## 65:     m23 treatment       35       33       35
-## 66:     m41 treatment       28       27       28
-## 67:     m19   placebo       33       32       31
-## 68:     m24   placebo      219      218      219
-## 69:     m18   placebo      130      128      128
-## 70:     m08   placebo       46       46       46
-## 71:     m11   placebo       36       35       36
-## 72:     m22   placebo       21       22       23
-## 73:     m27   placebo      140      136      139
-## 74:     m29   placebo       33       32       32
-## 75:     m44   placebo       17       18       17
-## 76:     m37   placebo       17       18       18
-## 77:     m25 treatment       29       28       30
-## 78:     m40 treatment       24       23       23
-## 79:     m20   placebo       28       28       29
-## 80:     m23   placebo       23       23       25
-## 81:     m35   placebo       24       26       27
-## 82:     m40   placebo       21       22       22
-## 83:     m07 treatment       41       40       41
-## 84:     m02   placebo       44       46       46
-## 85:     m04 treatment       37       40       40
-## 86:     m32 treatment       16       17       17
-## 87:     m20 treatment       30       30       30
-## 88:     m47   placebo       14       14       14
-## 89:     m16 treatment       34       35       35
-## 90:     m28 treatment       21       21       21
-## 91:     m43 treatment       14       14       12
-## 92:     m13   placebo       33       32       33
-## 93:     m38   placebo       21       21       21
-## 94:     m37 treatment       29       29       27
-## 95:     m38 treatment       29       29       30
-## 96:     m10   placebo       33       31       31
-## 97:     m35 treatment       23       23       22
-## 98:     m46 treatment       20       20       20
-##     VISCODE treatment COT1SCOR COT2SCOR COT3SCOR
+##    VISCODE treatment COT1SCOR COT2SCOR COT3SCOR
+## 1:      bl   placebo      275      273      274
+## 2:     m01   placebo       42       45       43
+## 3:     m03   placebo      174      174      176
+## 4:     m07   placebo       35       35       35
+## 5:     m09   placebo      144      140      140
+## 6:     m12   placebo      223      218      223
 ```
 
 ```r
 # the output is differnt
-DT_join[, list(lapply(.SD, function(x) {
+head(DT_join[, list(lapply(.SD, function(x) {
     sum(!is.na(x))
-})), by = "VISCODE,treatment", .SDcols = COTs]
+})), by = "VISCODE,treatment", .SDcols = COTs])
 ```
 
 ```
-##      VISCODE treatment  V1
-##   1:      bl   placebo 275
-##   2:      bl   placebo 273
-##   3:      bl   placebo 274
-##   4:     m01   placebo  42
-##   5:     m01   placebo  45
-##  ---                      
-## 290:     m35 treatment  23
-## 291:     m35 treatment  22
-## 292:     m46 treatment  20
-## 293:     m46 treatment  20
-## 294:     m46 treatment  20
+##    VISCODE treatment  V1
+## 1:      bl   placebo 275
+## 2:      bl   placebo 273
+## 3:      bl   placebo 274
+## 4:     m01   placebo  42
+## 5:     m01   placebo  45
+## 6:     m01   placebo  43
 ```
 
 ```r
@@ -1179,8 +894,8 @@ DT_join[, list(lapply(.SD, function(x) {
 
 
 ## Reference
--[data.table R forge] (http://datatable.r-forge.r-project.org/)
--[stackoverflow for data.table] (http://stackoverflow.com/questions/tagged/data.table)
--[data.table wiki] (http://rwiki.sciviews.org/doku.php?id=packages:cran:data.table)
+- [data.table R forge] (http://datatable.r-forge.r-project.org/)
+- [stackoverflow for data.table] (http://stackoverflow.com/questions/tagged/data.table)
+- [data.table wiki] (http://rwiki.sciviews.org/doku.php?id=packages:cran:data.table)
 
 
