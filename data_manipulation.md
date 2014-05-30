@@ -105,15 +105,15 @@ DT[, `:=`(c("USERID", "USERDATE", "USERID2", "USERDATE2"), NULL)]  #remove sever
 
 
 ## Merge and Join
-- X[Y, nomatch=NA]: all rows in Y, *right outer join* (default) X[Y]
-  - merge(X, Y, all.y=TRUE)
-- X[Y, nomatch=0]: only rows with matches in both X and Y, *inner join*
-  - merge(X, Y, by=key)
-- Y[X]: all rows in X, *left outer join*
-  - merge(X, Y, all.x=TRUE)
-- unique_keys <- unique(c(X[,t], Y[,t])); Y[X[J(unique_keys)]], all rows from both X and Y - full outer join 
-- or X[Y[J(unique_keys)]] 
-  - merge(X, Y, all=TRUE) 
+- `X[Y, nomatch=NA]`: all rows in Y, *right outer join* (default) X[Y]
+  - `merge(X, Y, all.y=TRUE)`
+- `X[Y, nomatch=0]`: only rows with matches in both X and Y, *inner join*
+  - `merge(X, Y, by=key)`
+- `Y[X]`: all rows in X, *left outer join*
+  - `merge(X, Y, all.x=TRUE)`
+- `unique_keys <- unique(c(X[,t], Y[,t])); Y[X[J(unique_keys)]]`, all rows from both X and Y - full outer join 
+- or `X[Y[J(unique_keys)]]` 
+  - `merge(X, Y, all=TRUE)`
 
 
 ```r
@@ -597,78 +597,18 @@ DT_demog[, `:=`(treatment, ifelse(sample(c(0, 1), nrow(DT_demog), replace = TRUE
 ```
 
 ```
-##      RID SITEID VISCODE   USERID   USERDATE    USERID2  USERDATE2 EXAMINIT
-##   1:  11    112      sc JUDICKSO 2009-01-16         NA       <NA>      JDE
-##   2:  12    202      sc CMCADAMS 2008-02-14         NA       <NA>      JDR
-##   3:  18     98      sc   GEMILY 2008-07-08         NA 2011-07-07      NAJ
-##   4:  19     86      sc  LMURRAY 2007-12-03         NA       <NA>      SAS
-##   5:  20     85      sc SAUCEDAC 2008-10-13         NA       <NA>      N-S
-##  ---                                                                      
-## 706: 792     94      sc SAUCEDAC 2008-06-15         NA       <NA>      tmj
-## 707: 794    212      sc LGORDINE 2009-01-22         NA       <NA>      meg
-## 708: 796     83      sc CMCADAMS 2008-10-06         NA       <NA>      N-S
-## 709: 798    202      sc    SSAMI 2009-01-07         NA       <NA>      SAC
-## 710: 799    113      sc ELVANHOO 2009-02-13 TAM_BU_EDU       <NA>      ASM
-##        EXAMDATE PTAGE90 PTAGE PTGENDER                PTETHCAT
-##   1: 2008-01-04      No    80   Female Not Hispanic nor Latino
-##   2: 2007-12-03      No    81     Male Not Hispanic nor Latino
-##   3: 2008-03-25      No    76   Female Not Hispanic nor Latino
-##   4: 2008-06-23      No    77   Female Not Hispanic nor Latino
-##   5: 2008-12-10      No    76     Male Not Hispanic nor Latino
-##  ---                                                          
-## 706: 2008-06-26      No    81     Male Not Hispanic nor Latino
-## 707: 2008-04-30      No    86   Female Not Hispanic nor Latino
-## 708: 2008-03-11      No    82   Female Not Hispanic nor Latino
-## 709: 2007-12-17      No    85   Female Not Hispanic nor Latino
-## 710: 2008-03-28      No    82   Female Not Hispanic nor Latino
-##                       PTRACCAT  PTMARRY PTEDUCAT PTWORKHS
-##   1: Black or African American  Married       16       NA
-##   2:                     White Divorced       18       NA
-##   3:                     White  Widowed       12       NA
-##   4:                     White  Married       12       NA
-##   5:                     White  Widowed       10      Yes
-##  ---                                                     
-## 706:                     White  Married       18       NA
-## 707:                     White Divorced       16       NA
-## 708:                     White  Married       15       NA
-## 709:                     White  Married       16       NA
-## 710:                     White  Married       14       NA
-##                                           PTWORK
-##   1:                                     Teacher
-##   2:                             Psychotherapist
-##   3:          U.S. Senate, Legislative Assistant
-##   4:                                   dietician
-##   5:                                    Clerical
-##  ---                                            
-## 706:                                   homemaker
-## 707: general practice physician, general surgery
-## 708:                    administrative assistant
-## 709:                                   housewife
-## 710:                                 Social work
-##                          PTWRECNT PTNOTRT     PTRTYR               PTHOME
-##   1:                      Teacher     Yes 1993-07-15  Condo/Co-op (owned)
-##   2:               office manager     Yes 1991-12-31 Retirement Community
-##   3:                    Counselor     Yes 1982-07-15                House
-##   4:                      RETIRED     Yes 1973-07-15 Retirement Community
-##   5:            Gift Store Teller     Yes 1978-07-15  Condo/Co-op (owned)
-##  ---                                                                     
-## 706:                    Housewife     Yes       <NA>   Apartment (rented)
-## 707:                    Homemaker     Yes 1982-07-15                House
-## 708:                 psychologist     Yes 1990-07-15                House
-## 709:                    housewife      No       <NA>                House
-## 710: Computer Research Supervisor      No 1970-07-15                House
-##      PTOTHOME PTTLANG PTNLANG    PTOTHNL PTPLANG PTOTHPL treatment
-##   1:       NA English English         NA English      NA   placebo
-##   2:       NA English English         NA English      NA   placebo
-##   3:       NA English English         NA English      NA treatment
-##   4:       NA English English         NA English      NA treatment
-##   5:       NA English English Portuguese English      NA treatment
-##  ---                                                              
-## 706:       NA English English         NA English      NA treatment
-## 707:       NA English English         NA English      NA   placebo
-## 708:       NA English English         NA English      NA   placebo
-## 709:       NA English English         NA Spanish      NA treatment
-## 710:       NA English English     German English      NA treatment
+##      RID SITEID PTAGE PTGENDER PTEDUCAT treatment
+##   1:  11    112    80   Female       16   placebo
+##   2:  12    202    81     Male       18   placebo
+##   3:  18     98    76   Female       12 treatment
+##   4:  19     86    77   Female       12 treatment
+##   5:  20     85    76     Male       10 treatment
+##  ---                                             
+## 706: 792     94    81     Male       18 treatment
+## 707: 794    212    86   Female       16   placebo
+## 708: 796     83    82   Female       15   placebo
+## 709: 798    202    85   Female       16 treatment
+## 710: 799    113    82   Female       14 treatment
 ```
 
 ```r
@@ -859,6 +799,7 @@ DT_join[, lapply(.SD, function(x) {
 ```
 
 ```r
+# with verbose=TRUE
 DT_join[, list(lapply(.SD, function(x) {
     sum(!is.na(x))
 }), lapply(.SD, function(x) {
@@ -873,8 +814,8 @@ DT_join[, list(lapply(.SD, function(x) {
 ## Old mean optimization is on, left j unchanged.
 ## Starting dogroups ... Column 1 of j is a named vector (each item down the rows is named, somehow). Please remove those names for efficiency (to save creating them over and over for each group). They are ignored anyway.Column 2 of j is a named vector (each item down the rows is named, somehow). Please remove those names for efficiency (to save creating them over and over for each group). They are ignored anyway.
 ##   collecting ad hoc groups took 0.000s for 98 calls
-##   eval(j) took 0.012s for 98 calls
-## done dogroups in 0.012 secs
+##   eval(j) took 0.010s for 98 calls
+## done dogroups in 0.01 secs
 ```
 
 ```
@@ -895,6 +836,7 @@ DT_join[, list(lapply(.SD, function(x) {
 
 ## Reference
 - [data.table R forge] (http://datatable.r-forge.r-project.org/)
+- [data.table Reference manual] (http://cran.r-project.org/web/packages/data.table/data.table.pdf)
 - [stackoverflow for data.table] (http://stackoverflow.com/questions/tagged/data.table)
 - [data.table wiki] (http://rwiki.sciviews.org/doku.php?id=packages:cran:data.table)
 
