@@ -24,7 +24,13 @@ mmse <- subset(mmse, , c('RID', "VISCODE", "MMSCORE"))
 cogp1[] <- lapply(cogp1, PermuteCol)
 cogp1 <- subset(cogp1, , c("RID", "VISCODE", paste0("COT", 1:3, "SCOR"), paste0("TICS", 1:8), "TICTOTAL"))
 ```
+#### Table of Contents
+[data.table] (#data.table)
+   [data.table basic syntax] (#data.table.syntax)
+   [data.table cookbook] (#data.table.cookbook)
+[dplyr] (#dplyr)
 
+<a name="data.table"/>
 # data.table
 ## build to reduce 2 types of time
 1. programming time (easier to write, read, debug and maintain)
@@ -37,6 +43,7 @@ This key can be used for row indexing instead of rownames, and **duplicate key v
 fast aggregation, fast last observation carried forward (LOCF) and fast 
 add/modify/delete of columns by reference with no copy at all.
 
+<a name="data.table.syntax"/>
 ## Basic syntax
 x[i, j, by] - Take `x`, subset rows using `i`, then calculate `j` grouped by `by`
 - i: *Integer, logical* or *character vector*, *expression of column names, list* or *data.table*
@@ -58,6 +65,7 @@ x[i, j, by] - Take `x`, subset rows using `i`, then calculate `j` grouped by `by
 **R: `i, j, by`**
 **SQL: `WHERE, SELECT, GROUP BY`**
 
+<a name="data.table.cookbook"/>
 ## Cookbook 
 ### Basic Operations
 ```{r data.table basic, echo=TRUE, eval=FALSE}
@@ -241,4 +249,41 @@ DT_join[, list(lapply(.SD, function(x) {sum(! is.na(x))}),
 - [stackoverflow for data.table] (http://stackoverflow.com/questions/tagged/data.table)
 - [data.table wiki] (http://rwiki.sciviews.org/doku.php?id=packages:cran:data.table)
 
+# dplyr
 
+## Basic syntax
+ - use dplyr to transform data
+   * filter: return rows that meet some criteria
+   * select: return subset of columns
+     + starts_with(x): names starts with "x"
+     + ends_with(x): names ends with "x"
+     + contains(x): select all variables whose name contains "x"
+     + matches(x): select all variables whose names matches regular expression "x"
+     + num_range("x", 1:5, width=2): select all variables from x01 to x05.
+     + use `-` to drop variables.
+   * arrage: reorder rows
+   * mutate: add new columns
+   * summarise: reduce each group to a single row.
+ - first argument is data.frame and always return data.frame (no drop).
+
+```{r dplyr demo data, echo=FALSE, eval=TRUE}
+   library(dplyr)
+   library(ggplot2)
+   flights <- tbl_df(read.csv("flights.csv", stringsAsFactors = FALSE))
+   flights$date <- as.Date(flights$date)
+   weather <- tbl_df(read.csv("weather.csv", stringsAsFactors = FALSE))
+   weather$date <- as.Date(weather$date)
+   planes <- tbl_df(read.csv("planes.csv", stringsAsFactors = FALSE))
+   airports <- tbl_df(read.csv("airports.csv", stringsAsFactors = FALSE))
+```
+
+### Basic Operations
+```{r dplyr basic, echo=TRUE, eval=FALSE}
+filter(flights, dest %in% c("SFO", "OAK")) 
+filter(flights, dest == "SFO" | dest == "OAK")
+by_color <- group_by(df, color)
+summarise(by_color, total = sum(value))
+```
+
+## Reference
+- [useR2014 Hadley's dplyr tutorial] (https://www.dropbox.com/sh/i8qnluwmuieicxc/AAAgt9tIKoIm7WZKIyK25lh6a)

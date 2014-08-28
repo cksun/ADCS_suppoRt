@@ -1,9 +1,13 @@
 
 
 
+#### Table of Contents
+[data.table] (#data.table)
+   [data.table basic syntax] (#data.table.syntax)
+   [data.table cookbook] (#data.table.cookbook)
+[dplyr] (#dplyr)
 
-
-
+<a name="data.table"/>
 # data.table
 ## build to reduce 2 types of time
 1. programming time (easier to write, read, debug and maintain)
@@ -16,6 +20,7 @@ This key can be used for row indexing instead of rownames, and **duplicate key v
 fast aggregation, fast last observation carried forward (LOCF) and fast 
 add/modify/delete of columns by reference with no copy at all.
 
+<a name="data.table.syntax"/>
 ## Basic syntax
 x[i, j, by] - Take `x`, subset rows using `i`, then calculate `j` grouped by `by`
 - i: *Integer, logical* or *character vector*, *expression of column names, list* or *data.table*
@@ -37,72 +42,71 @@ x[i, j, by] - Take `x`, subset rows using `i`, then calculate `j` grouped by `by
 **R: `i, j, by`**
 **SQL: `WHERE, SELECT, GROUP BY`**
 
+<a name="data.table.cookbook"/>
 ## Cookbook 
 ### Basic Operations
 
 ```r
-DF <- ptdemog
+DF <- ptdemog 
 DT <- data.table(ptdemog)
 DT_mmse <- data.table(mmse)
 DT_cogp1 <- data.table(cogp1)
 head(DF)
 DT
-identical(dim(DT), dim(DF))  # TRUE
-identical(DF$a, DT$a)  # TRUE
-is.list(DF)  # TRUE
-is.list(DT)  # TRUE
-is.data.frame(DT)  # TRUE
+identical(dim(DT),dim(DF)) # TRUE
+identical(DF$a, DT$a)      # TRUE
+is.list(DF)                # TRUE
+is.list(DT)                # TRUE
+is.data.frame(DT)          # TRUE
 
-tables()  # see a list of all data.tables in memory 
+tables()                   # see a list of all data.tables in memory 
 
-# We can use data.frame syntax in a data.table, when no keys have been set
+# We can use data.frame syntax in a data.table, when no keys have been set 
 
-DT[DT$RID == 226, ]
-DT[2, ]  # 2nd row
-DT[2]  # 2nd row
-DT[, 5]  # not the 5th column, j is expression so 5 is 5..
-DT[, 5, with = FALSE]  # the 5th column, j can be number when with=FALSE, default is TRUE.
+DT[DT$RID == 226, ]               
+DT[2, ]                          # 2nd row
+DT[2]                            # 2nd row
+DT[, 5]                          # not the 5th column, j is expression so 5 is 5..
+DT[, 5, with=FALSE]              # the 5th column, j can be number when with=FALSE, default is TRUE.
 colNum = 5
-DT[, colNum, with = FALSE]  # same
-DT[, PTAGE]  # PTAGE column (as vector)
-DT[, list(PTAGE)]  # PTAGE column (as data.table)
-DT[, "PTAGE", with = FALSE]  # same
+DT[, colNum, with=FALSE]         # same
+DT[, PTAGE]                      # PTAGE column (as vector)
+DT[, list(PTAGE)]                # PTAGE column (as data.table)
+DT[, "PTAGE", with=FALSE]        # same
 DT[, list(RID, VISCODE, PTAGE)]  # choose multiple columns
 
-setkey(DT, RID)  # DT will be sorted with key
-setkeyv(DT, "RID")  # DT will be sorted with key
-setkey(DT_cogp1, RID, VISCODE)  # set key with multiple columns, Sorts the table by RID then VISCODE 
+setkey(DT, RID)                  # DT will be sorted with key
+setkeyv(DT, "RID")               # DT will be sorted with key
+setkey(DT_cogp1, RID, VISCODE)   # set key with multiple columns, Sorts the table by RID then VISCODE 
 setkeyv(DT_cogp1, c("RID", "VISCODE"))
 key(DT)
-DT[226]  # row with RID == 226, not 226th row
-DT[226, ]  # same 
-DT[NA]  # not recycle to match the number of rows
-DT[NA, ]  # same 
-DF[NA, ]  # recycle to match the number of rows
-DT[nrow(DT) + 1, ]  # index i out of range
-DF[nrow(DF) + 1, ]  # same behavior
+DT[226]                          # row with RID == 226, not 226th row
+DT[226, ]                        # same 
+DT[NA]                           # not recycle to match the number of rows
+DT[NA, ]                         # same 
+DF[NA, ]                         # recycle to match the number of rows
+DT[nrow(DT) + 1, ]               # index i out of range
+DF[nrow(DF) + 1, ]               # same behavior
 
-DT[DT$RID == 226, ]  # vector scan (slow) but same
-DT_cogp1[list(226)]  # rows with RID == 226, binary search (fast)
-DT_cogp1[J(226)]  # same 
-DT_cogp1["226"]  # same 
-DT_cogp1[226]  # Be careful, it's not rows with RID == 226
+DT[DT$RID == 226, ]              # vector scan (slow) but same
+DT_cogp1[list(226)]              # rows with RID == 226, binary search (fast)
+DT_cogp1[J(226)]                 # same 
+DT_cogp1["226"]                  # same 
+DT_cogp1[226]                    # Be careful, it's not rows with RID == 226
 tables()
 
-DT[2:5, mean(PTAGE)]  # sum(PTAGE) over rows 2 and 3
-DT[2:5, paste0(RID, "\n")]  # just for j's side effect
-DT[c(FALSE, TRUE)]  # even rows (usual recycling)
-# COT2SCOR, COT3SCOR,
-DT_cogp1[, mean(COT1SCOR, na.rm = TRUE), by = list(RID, VISCODE)]  # keyed by
-DT[, sum(v), by = key(DT)]  # same
-DT[, sum(v), by = y]  # ad hoc by
+DT[2:5, mean(PTAGE)]          # sum(PTAGE) over rows 2 and 3
+DT[2:5, paste0(RID,"\n")]     # just for j's side effect
+DT[c(FALSE,TRUE)]             # even rows (usual recycling)
+# COT2SCOR, COT3SCOR, 
+DT_cogp1[, mean(COT1SCOR, na.rm=TRUE), by=list(RID, VISCODE)]   # keyed by
+DT[ , sum(v), by=key(DT)]     # same
+DT[ , sum(v), by=y]           # ad hoc by
 
-DT[, `:=`(PTAGE_n, scale(PTAGE, center = TRUE, scale = TRUE))]  #vanilla update note the := operator 
-DT[, `:=`(PTAGE_c = mean(PTAGE, na.rm = TRUE), PTAGE_s = PTAGE_n - 1)]  #update several columns at once
-DT[, `:=`(c("USERID", "USERDATE", "USERID2", "USERDATE2"), NULL)]  #remove several columns at once
-
+DT[, PTAGE_n:=scale(PTAGE, center = TRUE, scale = TRUE)]         #vanilla update note the := operator 
+DT[,`:=`(PTAGE_c=mean(PTAGE, na.rm=TRUE), PTAGE_s=PTAGE_n - 1)]  #update several columns at once
+DT[, c("USERID", "USERDATE", "USERID2", "USERDATE2"):=NULL]      #remove several columns at once
 ```
-
 
 ## Merge and Join
 - `X[Y, nomatch=NA]`: all rows in Y, *right outer join* (default) X[Y]
@@ -118,9 +122,8 @@ DT[, `:=`(c("USERID", "USERDATE", "USERID2", "USERDATE2"), NULL)]  #remove sever
 
 ```r
 # from data.table examples
-DF <- data.frame(x = rep(c("a", "b", "c"), each = 3), y = c(1, 3, 6), v = 1:9)
-DT <- data.table(x = rep(c("a", "b", "c"), each = 3), y = c(1, 3, 6), v = 1:9, 
-    key = "x")
+DF <- data.frame(x=rep(c("a","b","c"),each=3), y=c(1,3,6), v=1:9)
+DT <- data.table(x=rep(c("a","b","c"),each=3), y=c(1,3,6), v=1:9, key='x')
 DT
 ```
 
@@ -138,7 +141,7 @@ DT
 ```
 
 ```r
-X <- data.table(c("b", "c"), foo = c(4, 2))
+X <- data.table(c("b","c"), foo=c(4,2))
 X
 ```
 
@@ -149,7 +152,7 @@ X
 ```
 
 ```r
-DT["a", sum(v)]  # j for one group
+DT["a", sum(v)]                  # j for one group
 ```
 
 ```
@@ -158,7 +161,7 @@ DT["a", sum(v)]  # j for one group
 ```
 
 ```r
-DT[c("a", "b"), sum(v)]  # j for two groups
+DT[c("a","b"), sum(v)]           # j for two groups
 ```
 
 ```
@@ -168,8 +171,7 @@ DT[c("a", "b"), sum(v)]  # j for two groups
 ```
 
 ```r
-
-DT[X]  # join 
+DT[X]                            # join 
 ```
 
 ```
@@ -183,7 +185,7 @@ DT[X]  # join
 ```
 
 ```r
-DT[X, sum(v)]  # join and eval j for each row in i
+DT[X, sum(v)]                    # join and eval j for each row in i
 ```
 
 ```
@@ -193,7 +195,7 @@ DT[X, sum(v)]  # join and eval j for each row in i
 ```
 
 ```r
-DT[X, mult = "first"]  # first row of each group
+DT[X, mult="first"]              # first row of each group
 ```
 
 ```
@@ -203,7 +205,7 @@ DT[X, mult = "first"]  # first row of each group
 ```
 
 ```r
-DT[X, mult = "last"]  # last row of each group
+DT[X, mult="last"]               # last row of each group
 ```
 
 ```
@@ -213,7 +215,7 @@ DT[X, mult = "last"]  # last row of each group
 ```
 
 ```r
-DT[X, sum(v) * foo]  # join inherited scope
+DT[X, sum(v)*foo]                # join inherited scope
 ```
 
 ```
@@ -223,22 +225,10 @@ DT[X, sum(v) * foo]  # join inherited scope
 ```
 
 ```r
+setkey(DT,x,y)                   # 2-column key
+setkeyv(DT, c("x","y"))           # same
 
-setkey(DT, x, y)  # 2-column key
-setkeyv(DT, c("x", "y"))  # same
-
-DT["a"]  # join to 1st column of key
-```
-
-```
-##    x y v
-## 1: a 1 1
-## 2: a 3 2
-## 3: a 6 3
-```
-
-```r
-DT[J("a")]  # same. J() stands for Join, an alias for list()
+DT["a"]                          # join to 1st column of key
 ```
 
 ```
@@ -249,7 +239,7 @@ DT[J("a")]  # same. J() stands for Join, an alias for list()
 ```
 
 ```r
-DT[list("a")]  # same
+DT[J("a")]                       # same. J() stands for Join, an alias for list()
 ```
 
 ```
@@ -260,7 +250,7 @@ DT[list("a")]  # same
 ```
 
 ```r
-DT[.("a")]  # same. In the style of package plyr.
+DT[list("a")]                    # same
 ```
 
 ```
@@ -271,7 +261,18 @@ DT[.("a")]  # same. In the style of package plyr.
 ```
 
 ```r
-DT[J("a", 3)]  # join to 2 columns
+DT[.("a")]                       # same. In the style of package plyr.
+```
+
+```
+##    x y v
+## 1: a 1 1
+## 2: a 3 2
+## 3: a 6 3
+```
+
+```r
+DT[J("a",3)]                     # join to 2 columns
 ```
 
 ```
@@ -280,7 +281,7 @@ DT[J("a", 3)]  # join to 2 columns
 ```
 
 ```r
-DT[.("a", 3)]  # same
+DT[.("a",3)]                     # same
 ```
 
 ```
@@ -289,7 +290,7 @@ DT[.("a", 3)]  # same
 ```
 
 ```r
-DT[J("a", 3:6)]  # join 4 rows (2 missing)
+DT[J("a",3:6)]                   # join 4 rows (2 missing)
 ```
 
 ```
@@ -301,7 +302,7 @@ DT[J("a", 3:6)]  # join 4 rows (2 missing)
 ```
 
 ```r
-DT[J("a", 3:6), nomatch = 0]  # remove missing
+DT[J("a",3:6), nomatch=0]        # remove missing
 ```
 
 ```
@@ -311,7 +312,7 @@ DT[J("a", 3:6), nomatch = 0]  # remove missing
 ```
 
 ```r
-DT[J("a", 3:6), roll = TRUE]  # rolling join (locf)
+DT[J("a",3:6), roll=TRUE]        # rolling join (locf)
 ```
 
 ```
@@ -323,8 +324,7 @@ DT[J("a", 3:6), roll = TRUE]  # rolling join (locf)
 ```
 
 ```r
-
-DT[, sum(v), by = list(y%%2)]  # by expression
+DT[, sum(v), by=list(y%%2)]      # by expression
 ```
 
 ```
@@ -334,7 +334,7 @@ DT[, sum(v), by = list(y%%2)]  # by expression
 ```
 
 ```r
-DT[, .SD[2], by = x]  # 2nd row of each group
+DT[, .SD[2], by=x]               # 2nd row of each group
 ```
 
 ```
@@ -345,7 +345,7 @@ DT[, .SD[2], by = x]  # 2nd row of each group
 ```
 
 ```r
-DT[, tail(.SD, 2), by = x]  # last 2 rows of each group
+DT[, tail(.SD, 2), by=x]         # last 2 rows of each group
 ```
 
 ```
@@ -359,7 +359,7 @@ DT[, tail(.SD, 2), by = x]  # last 2 rows of each group
 ```
 
 ```r
-DT[, lapply(.SD, sum), by = x]  # apply through columns by group
+DT[, lapply(.SD, sum), by=x]     # apply through columns by group
 ```
 
 ```
@@ -370,8 +370,10 @@ DT[, lapply(.SD, sum), by = x]  # apply through columns by group
 ```
 
 ```r
-
-DT[, list(MySum = sum(v), MyMin = min(v), MyMax = max(v)), by = list(x, y%%2)]  # by 2 expressions
+DT[, list(MySum=sum(v),
+          MyMin=min(v),
+          MyMax=max(v)),
+by=list(x,y%%2)]                 # by 2 expressions
 ```
 
 ```
@@ -385,8 +387,7 @@ DT[, list(MySum = sum(v), MyMin = min(v), MyMax = max(v)), by = list(x, y%%2)]  
 ```
 
 ```r
-
-DT[, sum(v), x][V1 < 20]  # compound query
+DT[, sum(v), x][V1<20]           # compound query
 ```
 
 ```
@@ -396,7 +397,7 @@ DT[, sum(v), x][V1 < 20]  # compound query
 ```
 
 ```r
-DT[, sum(v), x][order(-V1)]  # ordering results
+DT[, sum(v), x][order(-V1)]      # ordering results
 ```
 
 ```
@@ -407,8 +408,7 @@ DT[, sum(v), x][order(-V1)]  # ordering results
 ```
 
 ```r
-
-print(DT[, `:=`(z, 42L)])  # add new column by reference
+print(DT[, z:=42L])              # add new column by reference
 ```
 
 ```
@@ -425,7 +425,7 @@ print(DT[, `:=`(z, 42L)])  # add new column by reference
 ```
 
 ```r
-print(DT[, `:=`(z, NULL)])  # remove column by reference
+print(DT[, z:=NULL])             # remove column by reference
 ```
 
 ```
@@ -442,7 +442,7 @@ print(DT[, `:=`(z, NULL)])  # remove column by reference
 ```
 
 ```r
-print(DT["a", `:=`(v, 42L)])  # subassign to existing v column by reference
+print(DT["a", v:=42L])           # subassign to existing v column by reference
 ```
 
 ```
@@ -459,7 +459,7 @@ print(DT["a", `:=`(v, 42L)])  # subassign to existing v column by reference
 ```
 
 ```r
-print(DT["b", `:=`(v2, 84L)])  # subassign to new column by reference (NA padded)
+print(DT["b", v2:=84L])          # subassign to new column by reference (NA padded)
 ```
 
 ```
@@ -476,8 +476,7 @@ print(DT["b", `:=`(v2, 84L)])  # subassign to new column by reference (NA padded
 ```
 
 ```r
-
-DT[, `:=`(m, mean(v)), by = x][]  # add new column by reference by group
+DT[,m:=mean(v), by=x][]          # add new column by reference by group
 ```
 
 ```
@@ -494,9 +493,9 @@ DT[, `:=`(m, mean(v)), by = x][]  # add new column by reference by group
 ```
 
 ```r
-# NB: postfix [] is shortcut to print()
+                                 # NB: postfix [] is shortcut to print()
 
-DT[, .SD[which.min(v)], by = x][]  # nested query by group, .SD - Subset of Data.table
+DT[,.SD[which.min(v)], by=x][]   # nested query by group, .SD - Subset of Data.table
 ```
 
 ```
@@ -507,8 +506,7 @@ DT[, .SD[which.min(v)], by = x][]  # nested query by group, .SD - Subset of Data
 ```
 
 ```r
-
-DT[!J("a")]  # not join
+DT[!J("a")]                      # not join
 ```
 
 ```
@@ -522,7 +520,7 @@ DT[!J("a")]  # not join
 ```
 
 ```r
-DT[!"a"]  # same
+DT[!"a"]                         # same
 ```
 
 ```
@@ -536,7 +534,7 @@ DT[!"a"]  # same
 ```
 
 ```r
-DT[!2:4]  # all rows other than 2:4
+DT[!2:4]                         # all rows other than 2:4
 ```
 
 ```
@@ -550,7 +548,7 @@ DT[!2:4]  # all rows other than 2:4
 ```
 
 ```r
-DT[x != "b" | y != 3]  # multiple vector scanning approach, slow
+DT[x!="b" | y!=3]                # multiple vector scanning approach, slow
 ```
 
 ```
@@ -566,7 +564,7 @@ DT[x != "b" | y != 3]  # multiple vector scanning approach, slow
 ```
 
 ```r
-DT[!J("b", 3)]  # same result but much faster
+DT[!J("b",3)]                    # same result but much faster
 ```
 
 ```
@@ -580,20 +578,18 @@ DT[!J("b", 3)]  # same result but much faster
 ## 7: c 3  8 NA  8
 ## 8: c 6  9 NA  8
 ```
-
 
 
 ```r
 DT_mmse = data.table(mmse)
 DT_cogp1 = data.table(cogp1)
 DT_demog = data.table(ptdemog)
-setkey(DT_demog, RID)
-setkey(DT_cogp1, RID, VISCODE)  # set key with multiple columns, Sorts the table by RID then VISCODE 
-setkey(DT_mmse, RID, VISCODE)  # set key with multiple columns, Sorts the table by RID then VISCODE 
+setkey(DT_demog, RID)                 
+setkey(DT_cogp1, RID, VISCODE)   # set key with multiple columns, Sorts the table by RID then VISCODE 
+setkey(DT_mmse, RID, VISCODE)   # set key with multiple columns, Sorts the table by RID then VISCODE 
 
 # add a new columns treatment
-DT_demog[, `:=`(treatment, ifelse(sample(c(0, 1), nrow(DT_demog), replace = TRUE), 
-    "treatment", "placebo"))]
+DT_demog[, treatment:= ifelse(sample(c(0, 1), nrow(DT_demog), replace=TRUE), 'treatment', 'placebo')]
 ```
 
 ```
@@ -612,12 +608,10 @@ DT_demog[, `:=`(treatment, ifelse(sample(c(0, 1), nrow(DT_demog), replace = TRUE
 ```
 
 ```r
-COTs <- colnames(DT_cogp1)[grepl("COT\\d+SCOR", colnames(DT_cogp1), perl = TRUE)]
-cols <- c("RID", "VISCODE", COTs)
-DT_join <- DT_demog[, c("RID", "treatment", "PTAGE"), with = FALSE][DT_cogp1[, 
-    cols, with = FALSE]]
-DT_merge <- merge(DT_demog[, c("RID", "treatment", "PTAGE"), with = FALSE], 
-    DT_cogp1[, cols, with = FALSE], by = "RID", all.y = TRUE)
+COTs <- colnames(DT_cogp1)[grepl('COT\\d+SCOR', colnames(DT_cogp1), perl=TRUE)]
+cols <- c('RID', 'VISCODE', COTs)
+DT_join <- DT_demog[, c('RID', 'treatment', 'PTAGE'), with=FALSE][DT_cogp1[, cols, with=FALSE]]
+DT_merge <- merge(DT_demog[, c('RID', 'treatment', 'PTAGE'), with=FALSE], DT_cogp1[, cols, with=FALSE], by='RID', all.y=TRUE)
 identical(DT_join, DT_merge)
 ```
 
@@ -626,9 +620,7 @@ identical(DT_join, DT_merge)
 ```
 
 ```r
-
-DT_join[, lapply(.SD[, COTs, with = FALSE], function(x) mean(x, na.rm = TRUE)), 
-    by = "treatment"]  # not preferred 
+DT_join[, lapply(.SD[, COTs, with=FALSE], function(x) mean(x, na.rm=TRUE)), by='treatment'] # not preferred 
 ```
 
 ```
@@ -638,8 +630,7 @@ DT_join[, lapply(.SD[, COTs, with = FALSE], function(x) mean(x, na.rm = TRUE)),
 ```
 
 ```r
-DT_join[, lapply(.SD, function(x) mean(x, na.rm = TRUE)), by = "treatment", 
-    .SDcols = COTs]  # preferred
+DT_join[, lapply(.SD, function(x) mean(x, na.rm=TRUE)), by='treatment', .SDcols=COTs]       # preferred
 ```
 
 ```
@@ -649,7 +640,7 @@ DT_join[, lapply(.SD, function(x) mean(x, na.rm = TRUE)), by = "treatment",
 ```
 
 ```r
-DT_join[, lapply(.SD, function(x) mean(x, na.rm = TRUE)), by = "VISCODE", .SDcols = COTs]
+DT_join[, lapply(.SD, function(x) mean(x, na.rm=TRUE)), by='VISCODE', .SDcols=COTs]
 ```
 
 ```
@@ -707,10 +698,8 @@ DT_join[, lapply(.SD, function(x) mean(x, na.rm = TRUE)), by = "VISCODE", .SDcol
 ```
 
 ```r
-
 # mean of each COTs by VISCODE and treatment
-head(DT_join[, lapply(.SD, function(x) mean(x, na.rm = TRUE)), by = "VISCODE,treatment", 
-    .SDcols = COTs])
+head(DT_join[, lapply(.SD, function(x) mean(x, na.rm=TRUE)), by='VISCODE,treatment', .SDcols=COTs])
 ```
 
 ```
@@ -724,9 +713,8 @@ head(DT_join[, lapply(.SD, function(x) mean(x, na.rm = TRUE)), by = "VISCODE,tre
 ```
 
 ```r
-# total counts by VISCODE and treatment
-head(DT_join[, lapply(.SD, function(x) length(x)), by = "VISCODE,treatment", 
-    .SDcols = COTs])
+# total counts by VISCODE and treatment 
+head(DT_join[, lapply(.SD, function(x) length(x)), by='VISCODE,treatment', .SDcols=COTs])
 ```
 
 ```
@@ -740,11 +728,8 @@ head(DT_join[, lapply(.SD, function(x) length(x)), by = "VISCODE,treatment",
 ```
 
 ```r
-
-# non missing total counts by VISCODE and treatment
-head(DT_join[, lapply(.SD, function(x) {
-    sum(!is.na(x))
-}), by = "VISCODE,treatment", .SDcols = COTs])
+# non missing total counts by VISCODE and treatment 
+head(DT_join[, lapply(.SD, function(x) {sum(! is.na(x))}), by='VISCODE,treatment', .SDcols=COTs])
 ```
 
 ```
@@ -759,9 +744,7 @@ head(DT_join[, lapply(.SD, function(x) {
 
 ```r
 # the output is differnt
-head(DT_join[, list(lapply(.SD, function(x) {
-    sum(!is.na(x))
-})), by = "VISCODE,treatment", .SDcols = COTs])
+head(DT_join[, list(lapply(.SD, function(x) {sum(! is.na(x))})), by='VISCODE,treatment', .SDcols=COTs])
 ```
 
 ```
@@ -775,12 +758,11 @@ head(DT_join[, list(lapply(.SD, function(x) {
 ```
 
 ```r
-
-# calculate both missing and non missing total counts by VISCODE and
-# treatment
+# calculate both missing and non missing total counts by VISCODE and treatment
+# with verbose=TRUE
 DT_join[, lapply(.SD, function(x) {
-    list(sum(!is.na(x)), sum(is.na(x)))
-}), by = "VISCODE,treatment", .SDcols = COTs]
+                 list(sum(! is.na(x)), sum(is.na(x)))
+          }), by='VISCODE,treatment', .SDcols=COTs]
 ```
 
 ```
@@ -799,23 +781,19 @@ DT_join[, lapply(.SD, function(x) {
 ```
 
 ```r
-# with verbose=TRUE
-DT_join[, list(lapply(.SD, function(x) {
-    sum(!is.na(x))
-}), lapply(.SD, function(x) {
-    sum(is.na(x))
-})), by = "VISCODE,treatment", .SDcols = COTs, verbose = TRUE]
+DT_join[, list(lapply(.SD, function(x) {sum(! is.na(x))}), 
+               lapply(.SD, function(x) {sum(is.na(x))})), by='VISCODE,treatment', .SDcols=COTs, verbose=TRUE]
 ```
 
 ```
-## Finding groups (bysameorder=FALSE) ... done in 0secs. bysameorder=FALSE and o__ is length 7172
+## Finding groups (bysameorder=FALSE) ... done in 0.001secs. bysameorder=FALSE and o__ is length 7172
 ## lapply optimization is on, j unchanged as 'list(lapply(.SD, function(x) {    sum(!is.na(x))}), lapply(.SD, function(x) {    sum(is.na(x))}))'
 ## GForce is on, left j unchanged
 ## Old mean optimization is on, left j unchanged.
 ## Starting dogroups ... Column 1 of j is a named vector (each item down the rows is named, somehow). Please remove those names for efficiency (to save creating them over and over for each group). They are ignored anyway.Column 2 of j is a named vector (each item down the rows is named, somehow). Please remove those names for efficiency (to save creating them over and over for each group). They are ignored anyway.
 ##   collecting ad hoc groups took 0.000s for 98 calls
-##   eval(j) took 0.010s for 98 calls
-## done dogroups in 0.01 secs
+##   eval(j) took 0.011s for 98 calls
+## done dogroups in 0.012 secs
 ```
 
 ```
@@ -833,11 +811,78 @@ DT_join[, list(lapply(.SD, function(x) {
 ## 294:     m46 treatment  20  0
 ```
 
-
 ## Reference
 - [data.table R forge] (http://datatable.r-forge.r-project.org/)
 - [data.table Reference manual] (http://cran.r-project.org/web/packages/data.table/data.table.pdf)
 - [stackoverflow for data.table] (http://stackoverflow.com/questions/tagged/data.table)
 - [data.table wiki] (http://rwiki.sciviews.org/doku.php?id=packages:cran:data.table)
 
+# dplyr
 
+## Basic syntax
+ - use dplyr to transform data
+   * filter: return rows that meet some criteria
+   * select: return subset of columns
+     + starts_with(x): names starts with "x"
+     + ends_with(x): names ends with "x"
+     + contains(x): select all variables whose name contains "x"
+     + matches(x): select all variables whose names matches regular expression "x"
+     + num_range("x", 1:5, width=2): select all variables from x01 to x05.
+     + use `-` to drop variables.
+   * arrage: reorder rows
+   * mutate: add new columns
+   * summarise: reduce each group to a single row.
+ - first argument is data.frame and always return data.frame (no drop).
+
+
+```
+## Warning: cannot open file 'flights.csv': No such file or directory
+```
+
+```
+## Error: cannot open the connection
+```
+
+```
+## Error: object 'flights' not found
+```
+
+```
+## Warning: cannot open file 'weather.csv': No such file or directory
+```
+
+```
+## Error: cannot open the connection
+```
+
+```
+## Error: object 'weather' not found
+```
+
+```
+## Warning: cannot open file 'planes.csv': No such file or directory
+```
+
+```
+## Error: cannot open the connection
+```
+
+```
+## Warning: cannot open file 'airports.csv': No such file or directory
+```
+
+```
+## Error: cannot open the connection
+```
+
+### Basic Operations
+
+```r
+filter(flights, dest %in% c("SFO", "OAK")) 
+filter(flights, dest == "SFO" | dest == "OAK")
+by_color <- group_by(df, color)
+summarise(by_color, total = sum(value))
+```
+
+## Reference
+- [useR2014 Hadley's dplyr tutorial] (https://www.dropbox.com/sh/i8qnluwmuieicxc/AAAgt9tIKoIm7WZKIyK25lh6a)
