@@ -28,7 +28,11 @@ cogp1 <- subset(cogp1, , c("RID", "VISCODE", paste0("COT", 1:3, "SCOR"), paste0(
 [data.table] (#data.table)
    [data.table basic syntax] (#data.table.syntax)
    [data.table cookbook] (#data.table.cookbook)
+   [data.table merge & join] (#data.table.merge)
 [dplyr] (#dplyr)
+   [dplyr basic syntax] (#dplyr.syntax)
+   [dplyr cookbook] (#dplyr.cookbook)
+   [dplyr merge & join] (#dplyr.merge)
 
 <a name="data.table"/>
 # data.table
@@ -132,6 +136,7 @@ DT[, c("USERID", "USERDATE", "USERID2", "USERDATE2"):=NULL]      #remove several
 
 ```
 
+<a name="data.table.merge"/>
 ## Merge and Join
 - `X[Y, nomatch=NA]`: all rows in Y, *right outer join* (default) X[Y]
   - `merge(X, Y, all.y=TRUE)`
@@ -249,41 +254,85 @@ DT_join[, list(lapply(.SD, function(x) {sum(! is.na(x))}),
 - [stackoverflow for data.table] (http://stackoverflow.com/questions/tagged/data.table)
 - [data.table wiki] (http://rwiki.sciviews.org/doku.php?id=packages:cran:data.table)
 
+<a name="dplyr"/>
 # dplyr
 
+<a name="dplyr.syntax"/>
 ## Basic syntax
  - use dplyr to transform data
-   * filter: return rows that meet some criteria
-   * select: return subset of columns
-     + starts_with(x): names starts with "x"
-     + ends_with(x): names ends with "x"
-     + contains(x): select all variables whose name contains "x"
-     + matches(x): select all variables whose names matches regular expression "x"
-     + num_range("x", 1:5, width=2): select all variables from x01 to x05.
+   * `filter(df, , , ...)`: return rows that meet some criteria
+   * `select(df, , , ...)`: return subset of columns
+     + `starts_with(x)`: names starts with "x"
+     + `ends_with(x)`: names ends with "x"
+     + `contains(x)`: select all variables whose name contains "x"
+     + `matches(x)`: select all variables whose names matches regular expression "x"
+     + `num_range("x", 1:5, width=2)`: select all variables from x01 to x05.
      + use `-` to drop variables.
-   * arrage: reorder rows
-   * mutate: add new columns
-   * summarise: reduce each group to a single row.
+   * `arrage(df, , , ...)`: reorder rows
+   * `mutate(df, , , ...)`: add new columns
+   * `summarise(df, , , ...)`: reduce each group to a single row.
+     + `min(x)`, `median(x)`, `max(x)`, `quantile(x, p)`
+     + `n()`, `n_distinct()`, `sum(x)`, `mean(x)`
  - first argument is data.frame and always return data.frame (no drop).
 
-```{r dplyr demo data, echo=FALSE, eval=TRUE}
-   library(dplyr)
-   library(ggplot2)
-   flights <- tbl_df(read.csv("flights.csv", stringsAsFactors = FALSE))
-   flights$date <- as.Date(flights$date)
-   weather <- tbl_df(read.csv("weather.csv", stringsAsFactors = FALSE))
-   weather$date <- as.Date(weather$date)
-   planes <- tbl_df(read.csv("planes.csv", stringsAsFactors = FALSE))
-   airports <- tbl_df(read.csv("airports.csv", stringsAsFactors = FALSE))
+### Pipeline operator
+ - `x %>% f(y)` means f(x, y)
+ - pronounce `%>%` as then
+
+### do function for general purpose
+ - It's slower, but general purpose.
+ - `.` represent the current group.
+```{r dplyr demo data, echo=TRUE, eval=TRUE}
+library(dplyr)
+library(zoo)
+df <- data.frame(houseID = rep(1:10, each = 10),
+                 year = 1995:2004,
+                 price = ifelse(runif(10 * 10) > 0.50, NA, exp(rnorm(10 * 10))))
+df %>% group_by(houseID) %>% do(na.locf(.))
+df %>% group_by(houseID) %>% do(head(., 2))
+df %>% group_by(houseID) %>% do(data.frame(year = .$year[1])) 
 ```
 
+<a name="dplyr.cookbook"/>
+## Cookbook 
 ### Basic Operations
-```{r dplyr basic, echo=TRUE, eval=FALSE}
-filter(flights, dest %in% c("SFO", "OAK")) 
-filter(flights, dest == "SFO" | dest == "OAK")
+```{r dplyr basic, echo=TRUE, eval=TRUE}
+df <- data.frame(color = c("blue", "black", "blue", "blue", "black"), value = 1:5)
+filter(df, color == "blue")
+filter(df, value %in% c(1, 4))
+select(df, color)
+select(df, -color)
+arrange(df, color) # order by color with ascending values.
+arrange(df, desc(color))
+mutate(df, double = 2 * value)
+mutate(df, double = 2 * value, quadruple = 2 * double)
+summarise(df, total = sum(value))
+
 by_color <- group_by(df, color)
 summarise(by_color, total = sum(value))
+
 ```
+
+<a name="dplyr.merge"/>
+## Merge and Join
+ - `inner_join(X, Y)`: Include only rows in both X and Y.
+ - `left_join(X, Y)`: Include all of X, and matching rows of Y 
+ - `semi_join(X, Y)`: Include rows of X that match Y.
+ - `anti_join(X, Y)`: Include rows of X that don't match Y.
+
+```{r dplyr merge, echo=TRUE, eval=TRUE}
+
+x <- data.frame(name = c("John", "Paul", "George", "Ringo", "Stuart", "Pete"),
+                instrument = c("guitar", "bass", "guitar", "drums", "bass", "drums"))
+
+y <- data.frame(name = c("John", "Paul", "George", "Ringo", "Brian"),
+                band = c("TRUE", "TRUE", "TRUE",  "TRUE", "FALSE"))
+inner_join(x, y)
+left_join(x, y)
+semi_join(x, y)
+anti_join(x, y)
+```
+
 
 ## Reference
 - [useR2014 Hadley's dplyr tutorial] (https://www.dropbox.com/sh/i8qnluwmuieicxc/AAAgt9tIKoIm7WZKIyK25lh6a)

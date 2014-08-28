@@ -5,7 +5,11 @@
 [data.table] (#data.table)
    [data.table basic syntax] (#data.table.syntax)
    [data.table cookbook] (#data.table.cookbook)
+   [data.table merge & join] (#data.table.merge)
 [dplyr] (#dplyr)
+   [dplyr basic syntax] (#dplyr.syntax)
+   [dplyr cookbook] (#dplyr.cookbook)
+   [dplyr merge & join] (#dplyr.merge)
 
 <a name="data.table"/>
 # data.table
@@ -108,6 +112,7 @@ DT[,`:=`(PTAGE_c=mean(PTAGE, na.rm=TRUE), PTAGE_s=PTAGE_n - 1)]  #update several
 DT[, c("USERID", "USERDATE", "USERID2", "USERDATE2"):=NULL]      #remove several columns at once
 ```
 
+<a name="data.table.merge"/>
 ## Merge and Join
 - `X[Y, nomatch=NA]`: all rows in Y, *right outer join* (default) X[Y]
   - `merge(X, Y, all.y=TRUE)`
@@ -793,7 +798,7 @@ DT_join[, list(lapply(.SD, function(x) {sum(! is.na(x))}),
 ## Starting dogroups ... Column 1 of j is a named vector (each item down the rows is named, somehow). Please remove those names for efficiency (to save creating them over and over for each group). They are ignored anyway.Column 2 of j is a named vector (each item down the rows is named, somehow). Please remove those names for efficiency (to save creating them over and over for each group). They are ignored anyway.
 ##   collecting ad hoc groups took 0.000s for 98 calls
 ##   eval(j) took 0.011s for 98 calls
-## done dogroups in 0.012 secs
+## done dogroups in 0.011 secs
 ```
 
 ```
@@ -817,72 +822,294 @@ DT_join[, list(lapply(.SD, function(x) {sum(! is.na(x))}),
 - [stackoverflow for data.table] (http://stackoverflow.com/questions/tagged/data.table)
 - [data.table wiki] (http://rwiki.sciviews.org/doku.php?id=packages:cran:data.table)
 
+<a name="dplyr"/>
 # dplyr
 
+<a name="dplyr.syntax"/>
 ## Basic syntax
  - use dplyr to transform data
-   * filter: return rows that meet some criteria
-   * select: return subset of columns
-     + starts_with(x): names starts with "x"
-     + ends_with(x): names ends with "x"
-     + contains(x): select all variables whose name contains "x"
-     + matches(x): select all variables whose names matches regular expression "x"
-     + num_range("x", 1:5, width=2): select all variables from x01 to x05.
+   * `filter(df, , , ...)`: return rows that meet some criteria
+   * `select(df, , , ...)`: return subset of columns
+     + `starts_with(x)`: names starts with "x"
+     + `ends_with(x)`: names ends with "x"
+     + `contains(x)`: select all variables whose name contains "x"
+     + `matches(x)`: select all variables whose names matches regular expression "x"
+     + `num_range("x", 1:5, width=2)`: select all variables from x01 to x05.
      + use `-` to drop variables.
-   * arrage: reorder rows
-   * mutate: add new columns
-   * summarise: reduce each group to a single row.
+   * `arrage(df, , , ...)`: reorder rows
+   * `mutate(df, , , ...)`: add new columns
+   * `summarise(df, , , ...)`: reduce each group to a single row.
+     + `min(x)`, `median(x)`, `max(x)`, `quantile(x, p)`
+     + `n()`, `n_distinct()`, `sum(x)`, `mean(x)`
  - first argument is data.frame and always return data.frame (no drop).
 
+### Pipeline operator
+ - `x %>% f(y)` means f(x, y)
+ - pronounce `%>%` as then
 
-```
-## Warning: cannot open file 'flights.csv': No such file or directory
-```
+### do function for general purpose
+ - It's slower, but general purpose.
+ - `.` represent the current group.
 
-```
-## Error: cannot open the connection
-```
-
-```
-## Error: object 'flights' not found
-```
-
-```
-## Warning: cannot open file 'weather.csv': No such file or directory
+```r
+library(dplyr)
+library(zoo)
 ```
 
 ```
-## Error: cannot open the connection
+## Error: there is no package called 'zoo'
+```
+
+```r
+df <- data.frame(houseID = rep(1:10, each = 10),
+                 year = 1995:2004,
+                 price = ifelse(runif(10 * 10) > 0.50, NA, exp(rnorm(10 * 10))))
+df %>% group_by(houseID) %>% do(na.locf(.))
 ```
 
 ```
-## Error: object 'weather' not found
+## Error: could not find function "na.locf"
+```
+
+```r
+df %>% group_by(houseID) %>% do(head(., 2))
 ```
 
 ```
-## Warning: cannot open file 'planes.csv': No such file or directory
+## Source: local data frame [20 x 3]
+## Groups: houseID
+## 
+##    houseID year  price
+## 1        1 1995 0.3299
+## 2        1 1996 2.3244
+## 3        2 1995 0.7980
+## 4        2 1996     NA
+## 5        3 1995     NA
+## 6        3 1996 0.9101
+## 7        4 1995 0.5766
+## 8        4 1996     NA
+## 9        5 1995 2.7551
+## 10       5 1996     NA
+## 11       6 1995     NA
+## 12       6 1996 0.4188
+## 13       7 1995 0.1309
+## 14       7 1996 2.8830
+## 15       8 1995     NA
+## 16       8 1996     NA
+## 17       9 1995     NA
+## 18       9 1996     NA
+## 19      10 1995     NA
+## 20      10 1996     NA
+```
+
+```r
+df %>% group_by(houseID) %>% do(data.frame(year = .$year[1])) 
 ```
 
 ```
-## Error: cannot open the connection
+## Source: local data frame [10 x 2]
+## Groups: houseID
+## 
+##    houseID year
+## 1        1 1995
+## 2        2 1995
+## 3        3 1995
+## 4        4 1995
+## 5        5 1995
+## 6        6 1995
+## 7        7 1995
+## 8        8 1995
+## 9        9 1995
+## 10      10 1995
 ```
 
-```
-## Warning: cannot open file 'airports.csv': No such file or directory
-```
-
-```
-## Error: cannot open the connection
-```
-
+<a name="dplyr.cookbook"/>
+## Cookbook 
 ### Basic Operations
 
 ```r
-filter(flights, dest %in% c("SFO", "OAK")) 
-filter(flights, dest == "SFO" | dest == "OAK")
+df <- data.frame(color = c("blue", "black", "blue", "blue", "black"), value = 1:5)
+filter(df, color == "blue")
+```
+
+```
+##   color value
+## 1  blue     1
+## 2  blue     3
+## 3  blue     4
+```
+
+```r
+filter(df, value %in% c(1, 4))
+```
+
+```
+##   color value
+## 1  blue     1
+## 2  blue     4
+```
+
+```r
+select(df, color)
+```
+
+```
+##   color
+## 1  blue
+## 2 black
+## 3  blue
+## 4  blue
+## 5 black
+```
+
+```r
+select(df, -color)
+```
+
+```
+##   value
+## 1     1
+## 2     2
+## 3     3
+## 4     4
+## 5     5
+```
+
+```r
+arrange(df, color) # order by color with ascending values.
+```
+
+```
+##   color value
+## 1 black     2
+## 2 black     5
+## 3  blue     1
+## 4  blue     3
+## 5  blue     4
+```
+
+```r
+arrange(df, desc(color))
+```
+
+```
+##   color value
+## 1  blue     1
+## 2  blue     3
+## 3  blue     4
+## 4 black     2
+## 5 black     5
+```
+
+```r
+mutate(df, double = 2 * value)
+```
+
+```
+##   color value double
+## 1  blue     1      2
+## 2 black     2      4
+## 3  blue     3      6
+## 4  blue     4      8
+## 5 black     5     10
+```
+
+```r
+mutate(df, double = 2 * value, quadruple = 2 * double)
+```
+
+```
+##   color value double quadruple
+## 1  blue     1      2         4
+## 2 black     2      4         8
+## 3  blue     3      6        12
+## 4  blue     4      8        16
+## 5 black     5     10        20
+```
+
+```r
+summarise(df, total = sum(value))
+```
+
+```
+##   total
+## 1    15
+```
+
+```r
 by_color <- group_by(df, color)
 summarise(by_color, total = sum(value))
 ```
+
+```
+## Source: local data frame [2 x 2]
+## 
+##   color total
+## 1 black     7
+## 2  blue     8
+```
+
+<a name="dplyr.merge"/>
+## Merge and Join
+ - `inner_join(X, Y)`: Include only rows in both X and Y.
+ - `left_join(X, Y)`: Include all of X, and matching rows of Y 
+ - `semi_join(X, Y)`: Include rows of X that match Y.
+ - `anti_join(X, Y)`: Include rows of X that don't match Y.
+
+
+```r
+x <- data.frame(name = c("John", "Paul", "George", "Ringo", "Stuart", "Pete"),
+                instrument = c("guitar", "bass", "guitar", "drums", "bass", "drums"))
+
+y <- data.frame(name = c("John", "Paul", "George", "Ringo", "Brian"),
+                band = c("TRUE", "TRUE", "TRUE",  "TRUE", "FALSE"))
+inner_join(x, y)
+```
+
+```
+##     name instrument band
+## 1   John     guitar TRUE
+## 2   Paul       bass TRUE
+## 3 George     guitar TRUE
+## 4  Ringo      drums TRUE
+```
+
+```r
+left_join(x, y)
+```
+
+```
+##     name instrument band
+## 1   John     guitar TRUE
+## 2   Paul       bass TRUE
+## 3 George     guitar TRUE
+## 4  Ringo      drums TRUE
+## 5 Stuart       bass <NA>
+## 6   Pete      drums <NA>
+```
+
+```r
+semi_join(x, y)
+```
+
+```
+##     name instrument
+## 1   John     guitar
+## 2   Paul       bass
+## 3 George     guitar
+## 4  Ringo      drums
+```
+
+```r
+anti_join(x, y)
+```
+
+```
+##     name instrument
+## 1   Pete      drums
+## 2 Stuart       bass
+```
+
 
 ## Reference
 - [useR2014 Hadley's dplyr tutorial] (https://www.dropbox.com/sh/i8qnluwmuieicxc/AAAgt9tIKoIm7WZKIyK25lh6a)
